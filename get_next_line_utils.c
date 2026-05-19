@@ -13,7 +13,8 @@ int	ft_strlen(char *str)
 char	*ft_strchr(char *s, int c)
 {
 	int	i;
-
+	if (!s)
+		return (NULL);
 	i = 0;
 	while (s[i])
 	{
@@ -21,7 +22,9 @@ char	*ft_strchr(char *s, int c)
 			return (&s[i]);
 		i++;
 	}
-	return (0);
+	if (s[i] == c)
+		return (&s[i]);
+	return (NULL);
 }
 
 char	*ft_strjoin(char *s1, char *s2)
@@ -62,8 +65,8 @@ char	*ft_substr(char *s, unsigned int start, size_t len)
 		return (NULL);
 	s_len = ft_strlen(s);
 	if (start >= s_len)
-		s_len = 0;
-	if (len > s_len - start)
+		len = 0;
+	else if (len > s_len - start)
 		len = s_len - start;
 	sub_str = (char *)malloc(sizeof(char) * (len + 1));
 	if (!sub_str)

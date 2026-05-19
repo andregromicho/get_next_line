@@ -35,6 +35,8 @@ char    *extract_line(char *stored)
     i = 0;
     while (stored[i] && stored[i] != '\n')
         i++;
+    if (stored[i] == '\n')
+        i++;
     line = ft_substr(stored, 0, i);
     return (line);
 }
@@ -42,12 +44,19 @@ char    *extract_line(char *stored)
 char    *update_stored(char *stored)
 {
     char    *new_stored;
-    size_t  stored_len;
-    size_t  line_len;
+    size_t  i;
 
-    stored_len = ft_strlen(stored);
-    line_len = ft_strlen(ft_strchr(stored, '\n')) + 1;
-    new_stored = ft_substr(stored, stored_len - line_len, line_len);
+    if (!stored)
+        return (NULL);
+    i = 0;
+    while (stored[i] && stored[i] != '\n')
+        i++;
+    if (!stored[i] || !stored[i + 1])
+    {
+        free(stored);
+        return (NULL);
+    }   
+    new_stored = ft_substr(stored, i + 1, ft_strlen(stored) - i - 1);
     free(stored);
     return (new_stored);
 }
@@ -56,15 +65,23 @@ char *get_next_line(int fd)
 {
     char    *line;
     static char *stored;
-    size_t  stored_len;
-    size_t  line_len;
 
     if (fd < 0 || BUFFER_SIZE <= 0)
+    {
+        free (stored);
+        stored = NULL;
         return (NULL);
+    }
     stored = read_and_store(fd, stored);
     if (!stored)
         return (NULL);
     line = extract_line(stored);
+    if (!line)
+    {
+        free(stored);
+        stored = NULL;
+        return (NULL);
+    }
     stored = update_stored(stored);
     return (line);
 }
