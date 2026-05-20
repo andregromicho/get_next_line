@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   get_next_line.h                                    :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: abrandao <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/05/20 14:29:40 by abrandao          #+#    #+#             */
+/*   Updated: 2026/05/20 14:29:43 by abrandao         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #ifndef GET_NEXT_LINE_H
 # define GET_NEXT_LINE_H
 
@@ -10,9 +22,11 @@
 # include <stddef.h>
 
 char	*get_next_line(int fd);
-size_t	ft_strlen(char *str);
+
 char	*ft_strchr(char *s, int c);
-char	*ft_strjoin(char *s1, char *s2);
-char	*ft_substr(char *s, unsigned int start, size_t len);
+char	*ft_strjoin(char *stored, char *buffer);
+char	*read_and_store(int fd, char *stored);
+char	*ft_strdup_len(char *s, size_t len);
+char	*update_stored(char *stored);
 
 #endif
