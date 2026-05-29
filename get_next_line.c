@@ -5,8 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: abrandao <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/05/19 12:53:03 by abrandao          #+#    #+#             */
-/*   Updated: 2026/05/19 12:53:09 by abrandao         ###   ########.fr       */
+/*   Created: 2026/05/29 15:36:54 by abrandao          #+#    #+#             */
+/*   Updated: 2026/05/29 15:36:56 by abrandao         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,47 +14,42 @@
 
 char	*get_next_line(int fd)
 {
+	static char	buffer[BUFFER_SIZE + 1];
+	char		*stored;
 	char		*line;
-	static char	*stored;
-	size_t		i;
+	int			i;
 
-	if (fd < 0 || BUFFER_SIZE <= 0 || read(fd, 0, 0) < 0)
-		return (free(stored), stored = NULL, NULL);
-	stored = read_and_store(fd, stored);
-	if (!stored || !stored[0])
-		return (free(stored), stored = NULL, NULL);
+	if (fd < 0 || BUFFER_SIZE <= 0)
+		return (NULL);
+	stored = ft_strdup(buffer);
+	stored = read_and_store(fd, stored, buffer);
+	if (!stored || *stored == '\0')
+	{
+		buffer[0] = '\0';
+		return (free(stored), NULL);
+	}
 	i = 0;
 	while (stored[i] && stored[i] != '\n')
 		i++;
-	if (stored[i] == '\n')
-		i++;
-	line = ft_strdup_len(stored, i);
-	if (!line)
-		return (free(stored), stored = NULL, NULL);
-	stored = update_stored(stored);
+	line = ft_substr(stored, 0, i + (stored[i] == '\n'));
+	update_buffer(buffer, stored, i + (stored[i] == '\n'));
+	free(stored);
 	return (line);
 }
 
-/* #include "get_next_line.h"
-#include <stdio.h>
+/* #include <stdio.h>
 #include <fcntl.h>
 
 int main(void)
 {
-    int fd;
-    char *line;
+	int fd = open("test.txt", O_RDONLY);
+	char *line;
 
-    fd = open("teste.txt", O_RDONLY);
-    if (fd < 0)
-    {
-        printf("Error opening file");
-        return (1);
-    }
-    while ((line = get_next_line(fd)) != NULL)
-    {
-        printf("line :%s", line);
-        free(line);
-    }
-    close(fd);
-    return (0);
+	while ((line = get_next_line(fd)) != NULL)
+	{
+		printf("line: %s", line);
+		free(line);
+	}
+	close(fd);
+	return (0);
 } */

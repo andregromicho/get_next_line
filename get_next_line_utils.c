@@ -5,120 +5,120 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: abrandao <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/05/19 12:53:21 by abrandao          #+#    #+#             */
-/*   Updated: 2026/05/19 12:53:24 by abrandao         ###   ########.fr       */
+/*   Created: 2026/05/29 15:37:14 by abrandao          #+#    #+#             */
+/*   Updated: 2026/05/29 15:37:15 by abrandao         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-char	*ft_strchr(char *s, int c)
+char	*ft_strdup(const char *str)
 {
-	int	i;
+	char	*dest;
+	size_t	i;
+	size_t	len;
 
-	if (!s)
+	len = 0;
+	while (str[len])
+		len++;
+	dest = malloc(len + 1);
+	if (!dest)
 		return (NULL);
 	i = 0;
-	while (s[i])
+	while (str[i])
 	{
-		if (s[i] == c)
-			return (&s[i]);
+		dest[i] = str[i];
 		i++;
 	}
-	if (s[i] == c)
-		return (&s[i]);
-	return (NULL);
+	dest[i] = '\0';
+	return (dest);
+}
+
+char	*ft_substr(char const *stored, unsigned int start, size_t len)
+{
+	char	*sub;
+	size_t	i;
+
+	if (!stored)
+		return (NULL);
+	sub = malloc(len + 1);
+	if (!sub)
+		return (NULL);
+	i = 0;
+	while (i < len && stored[start + i])
+	{
+		sub[i] = stored[start + i];
+		i++;
+	}
+	sub[i] = '\0';
+	return (sub);
 }
 
 char	*ft_strjoin(char *stored, char *buffer)
 {
-	char	*new_str;
-	size_t	i;
+	char	*joined;
 	size_t	s_len;
 	size_t	b_len;
+	size_t	i;
+	size_t	j;
 
+	if (!stored)
+		return (ft_strdup(buffer));
 	s_len = 0;
-	while (stored && stored[s_len])
+	while (stored[s_len])
 		s_len++;
 	b_len = 0;
-	while (buffer && buffer[b_len])
+	while (buffer[b_len])
 		b_len++;
-	new_str = (char *)malloc(sizeof(char) * (s_len + b_len + 1));
-	if (!new_str)
+	joined = malloc(s_len + b_len + 1);
+	if (!joined)
 		return (free(stored), NULL);
-	i = 0;
-	while (stored && stored[i])
-	{
-		new_str[i] = stored[i];
-		i++;
-	}
-	b_len = 0;
-	while (buffer && buffer[b_len])
-		new_str[i++] = buffer[b_len++];
-	new_str[i] = '\0';
-	return (free(stored), new_str);
+	i = -1;
+	while (stored[++i])
+		joined[i] = stored[i];
+	j = -1;
+	while (buffer[++j])
+		joined[i + j] = buffer[j];
+	joined[i + j] = '\0';
+	return (free(stored), joined);
 }
 
-char	*read_and_store(int fd, char *stored)
+void	update_buffer(char *buffer, char *stored, int start)
 {
-	char	*buffer;
-	int		bytes_read;
+	int	i;
 
-	buffer = (char *)malloc(sizeof(char) * (BUFFER_SIZE + 1));
-	if (!buffer)
-		return (free(stored), NULL);
+	i = 0;
+	while (stored[start])
+		buffer[i++] = stored[start++];
+	while (i < BUFFER_SIZE + 1)
+		buffer[i++] = '\0';
+}
+
+char	*read_and_store(int fd, char *stored, char *buffer)
+{
+	int	bytes_read;
+	int	i;
+
 	bytes_read = 1;
-	while (bytes_read > 0 && !ft_strchr(stored, '\n'))
+	while (bytes_read != 0)
 	{
+		i = 0;
+		while (stored && stored[i])
+		{
+			if (stored[i] == '\n')
+				return (stored);
+			i++;
+		}
 		bytes_read = read(fd, buffer, BUFFER_SIZE);
 		if (bytes_read == -1)
-			return (free (buffer), free(stored), NULL);
-		if (bytes_read == 0)
-			break ;
+		{
+			buffer[0] = '\0';
+			return (free(stored), NULL);
+		}
 		buffer[bytes_read] = '\0';
 		stored = ft_strjoin(stored, buffer);
 		if (!stored)
-			return (free(buffer), NULL);
+			return (NULL);
 	}
-	return (free(buffer), stored);
-}
-
-char	*ft_strdup_len(char *stored, size_t len)
-{
-	char	*new_str;
-	size_t	i;
-
-	if (!stored || len == 0)
-		return (NULL);
-	new_str = (char *)malloc(sizeof(char) * (len + 1));
-	if (!new_str)
-		return (NULL);
-	i = 0;
-	while (i < len && stored[i])
-	{
-		new_str[i] = stored[i];
-		i++;
-	}
-	new_str[i] = '\0';
-	return (new_str);
-}
-
-char	*update_stored(char *stored)
-{
-	char	*new_stored;
-	size_t	i;
-	size_t	len;
-
-	if (!stored)
-		return (NULL);
-	i = 0;
-	while (stored[i] && stored[i] != '\n')
-		i++;
-	if (!stored[i] || !stored[i + 1])
-		return (free(stored), NULL);
-	len = 0;
-	while (stored[i + 1 + len])
-		len++;
-	new_stored = ft_strdup_len(&stored[i + 1], len);
-	return (free(stored), new_stored);
+	return (stored);
 }
